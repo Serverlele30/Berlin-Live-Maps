@@ -8,7 +8,6 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 const vehiclesLayer = L.layerGroup().addTo(map);
 const vehicleMarkers = {};
 
-// BVG / DB S-Bahn Farben mit Hex + Namen
 const lineColors = {
   'S45': '#CD9C53', 'S46': '#CD9C53', 'S47': '#CD9C53', 'S6': '#CD9C53', 'S65': '#CD9C53', 'S66': '#CD9C53',
   'S42': '#CB6418',
@@ -34,7 +33,6 @@ const lineColors = {
   'U10': '#808080', 'U11': '#808080'
 };
 
-// Produkt-Symbole
 const symbols = {
   bus: '🚌',
   tram: '🚎',
@@ -45,11 +43,8 @@ const symbols = {
   longDistance: '🚅'
 };
 
-// Hilfsfunktion, um Farbe für Linie zu bestimmen
 function getLineColor(lineName, product) {
-  if(lineName === 'U12') {
-    return null;
-  }
+  if(lineName === 'U12') return null;
 
   if(lineName.startsWith('S3 ')) {
     if(lineName.toLowerCase().includes('wannsee')) return lineColors['S3-wannsee'];
@@ -58,15 +53,11 @@ function getLineColor(lineName, product) {
   }
 
   if(lineColors[lineName]) return lineColors[lineName];
-
   if(product === 'suburban') return '#CD9C53';
-
   if(product === 'subway') return '#7DAD4C';
-
   return '#666';
 }
 
-// Erzeuge DivIcon mit farbiger Linie als Hintergrund
 function createDivIcon(vehicle) {
   const product = vehicle.line?.product;
   const lineName = vehicle.line?.name || '?';
@@ -173,7 +164,14 @@ function locateAndLoad() {
   navigator.geolocation.getCurrentPosition(pos => {
     const { latitude, longitude } = pos.coords;
     map.setView([latitude, longitude], 14);
-    L.circle([latitude, longitude], { radius: 1000, color: 'blue', fillOpacity: 0.1 }).addTo(map);
+
+    const locationIcon = L.divIcon({
+      className: 'user-location-icon',
+      iconSize: [12, 12],
+      iconAnchor: [6, 6]
+    });
+
+    L.marker([latitude, longitude], { icon: locationIcon }).addTo(map);
     loadVehicles();
   }, () => {
     map.setView([52.52, 13.405], 13);
