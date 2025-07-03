@@ -19,3 +19,12 @@ html, body, #map {
   user-select: none;
   font-family: Arial, sans-serif;
 }
+
+.user-location-icon {
+  background-color: #007bff;
+  border: 2px solid white;
+  border-radius: 50%;
+  width: 12px;
+  height: 12px;
+  box-shadow: 0 0 6px rgba(0, 123, 255, 0.6);
+}
