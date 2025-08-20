@@ -30,7 +30,13 @@ const lineColors = {
   'S7': '#816DA6', 'S75': '#816DA6', 'S76': '#816DA6',
   'U6': '#8C6DAB',
   'S1': '#DA6BA2', 'S15': '#DA6BA2', 'S16': '#DA6BA2', 'U0': '#DA6BA2',
-  'U10': '#808080', 'U11': '#808080'
+  'U10': '#808080', 'U11': '#808080',
+  'F10': '#528DBA',
+  'F11': '#528DBA',
+  'F12': '#528DBA',
+  'F21': '#528DBA',
+  'F23': '#528DBA',
+  'F24': '#528DBA'
 };
 
 const symbols = {
@@ -40,7 +46,8 @@ const symbols = {
   suburban: '🚋',
   regional: '🚆',
   express: '🚄',
-  longDistance: '🚅'
+  longDistance: '🚅',
+  ferry: '🛥️'
 };
 
 function getLineColor(lineName, product) {
@@ -182,3 +189,4 @@ function locateAndLoad() {
 locateAndLoad();
 setInterval(loadVehicles, 610);
 map.on('moveend', loadVehicles);
+
