@@ -1,6 +1,6 @@
-// ====================
-// Leaflet-Karte Setup
-// ====================
+// =============================
+// Karte initialisieren
+// =============================
 const map = L.map('map', { zoomControl: false }).setView([52.52, 13.405], 13);
 
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -213,6 +213,7 @@ function updateClock() {
 
 updateClock();
 setInterval(updateClock, 1000);
+
 
 
 
