@@ -3,6 +3,12 @@
 // ====================
 const map = L.map('map', { zoomControl: false }).setView([52.52, 13.405], 13);
 
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  maxZoom: 19,
+  attribution: '© OpenStreetMap contributors'
+}).addTo(map);
+
+
 const vehiclesLayer = L.layerGroup().addTo(map);
 const vehicleMarkers = {};
 
@@ -207,6 +213,7 @@ function updateClock() {
 
 updateClock();
 setInterval(updateClock, 1000);
+
 
 
 
