@@ -1,13 +1,42 @@
 // ====================
 // Leaflet-Karte Setup
 // ====================
-// const map = L.map('map').setView([52.52, 13.405], 13);
 const map = L.map('map', { zoomControl: false }).setView([52.52, 13.405], 13);
 
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   maxZoom: 19,
   attribution: '© OpenStreetMap contributors'
 }).addTo(map);
+
+// ====================
+// Custom Zoom Control
+// ====================
+const customZoom = L.Control.extend({
+  options: {
+    position: 'bottomright' // Ecke ändern: 'topleft', 'topright', 'bottomleft', 'bottomright'
+  },
+  onAdd: function (map) {
+    const container = L.DomUtil.create('div', 'custom-zoom');
+
+    const zoomInBtn = L.DomUtil.create('button', 'zoom-btn', container);
+    zoomInBtn.innerHTML = '+';
+    L.DomEvent.on(zoomInBtn, 'click', function (e) {
+      L.DomEvent.stopPropagation(e);
+      map.zoomIn();
+    });
+
+    const zoomOutBtn = L.DomUtil.create('button', 'zoom-btn', container);
+    zoomOutBtn.innerHTML = '−';
+    L.DomEvent.on(zoomOutBtn, 'click', function (e) {
+      L.DomEvent.stopPropagation(e);
+      map.zoomOut();
+    });
+
+    return container;
+  }
+});
+
+map.addControl(new customZoom());
 
 const vehiclesLayer = L.layerGroup().addTo(map);
 const vehicleMarkers = {};
@@ -213,6 +242,7 @@ function updateClock() {
 
 updateClock();
 setInterval(updateClock, 1000);
+
 
 
 
