@@ -67,26 +67,3 @@ html, body, #map {
   opacity: 0.9;
 }
 
-.custom-zoom {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 6px;
-}
-
-.zoom-btn {
-  width: 28px;
-  height: 28px;
-  border: none;
-  border-radius: 6px;
-  background: rgba(0, 0, 0, 0.6);
-  color: white;
-  font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.zoom-btn:hover {
-  background: rgba(0, 0, 0, 0.8);
-}
