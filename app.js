@@ -37,31 +37,6 @@ const symbols = {
 };
 
 // =============================
-// Aktive Filter
-// =============================
-let activeProducts = Array.from(document.querySelectorAll('#controls input[type="checkbox"]'))
-  .filter(c => c.checked)
-  .map(c => c.value);
-
-// Checkbox Event
-document.querySelectorAll('#controls input[type="checkbox"]').forEach(cb => {
-  cb.addEventListener('change', () => {
-    activeProducts = Array.from(document.querySelectorAll('#controls input[type="checkbox"]'))
-      .filter(c => c.checked)
-      .map(c => c.value);
-
-    Object.values(vehicleMarkers).forEach(marker => {
-      const prod = marker.options.vehicleProduct || '';
-      if (activeProducts.includes(prod)) {
-        if (!map.hasLayer(marker)) map.addLayer(marker);
-      } else {
-        if (map.hasLayer(marker)) map.removeLayer(marker);
-      }
-    });
-  });
-});
-
-// =============================
 // Hilfsfunktionen
 // =============================
 function getLineColor(lineName, product) {
@@ -78,7 +53,7 @@ function getLineColor(lineName, product) {
 }
 
 function createDivIcon(vehicle) {
-  const product = vehicle.line?.product || '';
+  const product = vehicle.line?.product;
   const lineName = vehicle.line?.name || '?';
   const symbol = symbols[product] || '❓';
 
@@ -104,9 +79,7 @@ function createDivIcon(vehicle) {
         </div>
       </div>
     `;
-    const icon = L.divIcon({ html: iconHtml, className: '', iconSize: [30, 40], iconAnchor: [15, 20] });
-    icon.product = product;
-    return icon;
+    return L.divIcon({ html: iconHtml, className: '', iconSize: [30, 40], iconAnchor: [15, 20] });
   }
 
   const lineColor = getLineColor(lineName, product);
@@ -119,9 +92,7 @@ function createDivIcon(vehicle) {
     </div>
   `;
 
-  const icon = L.divIcon({ html: iconHtml, className: '', iconSize: [30, 40], iconAnchor: [15, 20] });
-  icon.product = product;
-  return icon;
+  return L.divIcon({ html: iconHtml, className: '', iconSize: [30, 40], iconAnchor: [15, 20] });
 }
 
 // =============================
@@ -149,18 +120,16 @@ async function loadVehicles() {
       if (vehicleMarkers[id]) {
         vehicleMarkers[id].setLatLng([loc.latitude, loc.longitude]);
       } else {
-        const marker = L.marker([loc.latitude, loc.longitude], { icon });
-        marker.options.vehicleProduct = vehicle.line?.product || '';
-        if (activeProducts.includes(marker.options.vehicleProduct)) {
-          marker.addTo(map);
-        }
+        const marker = L.marker([loc.latitude, loc.longitude], { icon })
+          .bindPopup(`<b>Linie:</b> ${vehicle.line?.name || 'unbekannt'}<br><b>Typ:</b> ${vehicle.line?.product || 'unbekannt'}<br><b>Richtung:</b> ${vehicle.direction || 'unbekannt'}`)
+          .addTo(vehiclesLayer);
         vehicleMarkers[id] = marker;
       }
     });
 
     Object.keys(vehicleMarkers).forEach(id => {
       if (!newIds.has(id)) {
-        if (map.hasLayer(vehicleMarkers[id])) map.removeLayer(vehicleMarkers[id]);
+        vehiclesLayer.removeLayer(vehicleMarkers[id]);
         delete vehicleMarkers[id];
       }
     });
@@ -188,3 +157,69 @@ function locateAndLoad() {
 locateAndLoad();
 setInterval(loadVehicles, 30000);
 map.on('moveend', loadVehicles);
+
+// =============================
+// Bahnhöfe mit Live-Abfahrten
+// =============================
+const stations = [
+  { name: "Berlin Zoologischer Garten", id: "900023201", coords: [52.5069, 13.3326] },
+  { name: "Berlin Alexanderplatz", id: "900100003", coords: [52.5215, 13.4115] },
+  { name: "Berlin Gesundbrunnen", id: "900007102", coords: [52.5483, 13.3889] },
+  { name: "Berlin Spandau", id: "900029101", coords: [52.5341, 13.1977] },
+  { name: "Berlin Südkreuz", id: "900058101", coords: [52.4752, 13.3653] },
+  { name: "Berlin Ostbahnhof", id: "900100004", coords: [52.5100, 13.4340] }
+];
+
+async function loadStationDepartures(stationId, marker, stationName) {
+  const symbols = {
+    bus: '🚌', tram: '🚎', subway: '🚉', suburban: '🚋',
+    regional: '🚆', express: '🚄', longDistance: '🚅', ferry: '🛥️'
+  };
+
+  try {
+    const res = await fetch(`https://v6.vbb.transport.rest/stops/${stationId}/departures?duration=30&results=10`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    const departures = data.departures || [];
+
+    let html = `<b style="font-size:14px;">${stationName}</b><br>`;
+    html += `<table style="border-collapse:collapse; width:100%; font-size:12px;">`;
+    html += `<tr style="border-bottom:1px solid #ccc;"><th style="text-align:left; padding:2px 4px;">Linie</th><th style="text-align:left; padding:2px 4px;">Richtung</th><th style="text-align:left; padding:2px 4px;">Zeit</th></tr>`;
+
+    departures.forEach((dep, index) => {
+      const line = dep.line?.name || "?";
+      const product = dep.line?.product;
+      const icon = symbols[product] || '❓';
+      const direction = dep.direction || "?";
+      const when = dep.when ? new Date(dep.when) : null;
+      const planned = dep.plannedWhen ? new Date(dep.plannedWhen) : null;
+      const delay = when && planned ? Math.round((when - planned) / 60000) : 0;
+      const timeStr = when ? when.toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" }) : "n/a";
+      const delayStr = delay > 0 ? `<span style="color:red;">+${delay} min</span>` : "";
+
+      const color = getLineColor(line, product);
+      const bg = index % 2 === 0 ? '#f9f9f9' : '#fff';
+
+      html += `<tr style="background:${bg};">
+        <td style="padding:4px 6px; font-weight:bold; color:${color}">${icon} ${line}</td>
+        <td style="padding:4px 6px;">${direction}</td>
+        <td style="padding:4px 6px;">${timeStr} ${delayStr}</td>
+      </tr>`;
+    });
+
+    html += `</table>`;
+    marker.setPopupContent(html).openPopup();
+  } catch (err) {
+    marker.setPopupContent(`<b>${stationName}</b><br>Fehler beim Laden`);
+    console.error(err);
+  }
+}
+
+
+stations.forEach(station => {
+  const marker = L.marker(station.coords)
+    .addTo(map)
+    .bindPopup(`<b>${station.name}</b><br>Lade Abfahrten...`);
+
+  marker.on('click', () => loadStationDepartures(station.id, marker, station.name));
+});
