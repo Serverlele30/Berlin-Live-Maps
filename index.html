@@ -8,10 +8,33 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <!-- Top Bar -->
+  <div id="topbar">
+    <div class="topbar-left">
+      <div class="logo">
+        <span class="logo-icon">🚇</span>
+        <span class="logo-text">VBB Live</span>
+      </div>
+      <div class="stats">
+        <div class="stat">
+          <span class="stat-number" id="vehicleCount">0</span>
+          <span class="stat-label">Fahrzeuge</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat">
+          <span class="stat-number" id="updateTime">--:--</span>
+          <span class="stat-label">Aktualisiert</span>
+        </div>
+      </div>
+    </div>
+    <button id="darkModeToggle" class="toggle-btn" title="Dark Mode">
+      <span class="toggle-icon">🌙</span>
+    </button>
+  </div>
+
   <div id="map"></div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
-
