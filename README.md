@@ -236,15 +236,6 @@ Sieh dir die [Issues](https://github.com/Serverlele30/berlin-live-maps/issues) a
 
 ---
 
-## 📝 Lizenz
-
-Dieses Projekt ist unter der **MIT License** lizenziert - siehe [LICENSE](LICENSE) für Details.
-
-```
-MIT License - Copyright (c) 2024 Serverlele30
-```
-
----
 
 ## 🙏 Credits & Danksagungen
 
